@@ -1,8 +1,9 @@
 
+// Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/Login.css'
+import '../styles/Login.css';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -12,15 +13,35 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setError('');
+
+        // Simulating an API request
+        try {
+            // When backend is integrated, replace this with an API call to validate login.
+            // Example: const response = await api.post('/login', { email, password });
+
+            // Retrieve user data from localStorage temporarily (for now)
+            const storedUser = localStorage.getItem('user');
+            const user = storedUser ? JSON.parse(storedUser) : null;
+
+            // Validate email and password
+            if (user && user.email === email && user.password === password) {
+                navigate('/dashboard');
+            } else {
+                setError('Invalid email or password.');
+            }
+        } catch (err) {
+            setError('Something went wrong. Please try again.');
+        }
     };
 
     return (
         <div className="container d-flex justify-content-center align-items-center min-vh-100">
             <div className="card p-4 shadow-lg" style={{ maxWidth: '400px', width: '100%' }}>
-                <h2 className="text-center text-primary mb-4">Login to CollabTool</h2>
+                <h2 className="text-center text-primary mb-4"><b>Login to CollabTool</b></h2>
                 <form onSubmit={handleLogin}>
                     <div className="mb-3">
-                        <label htmlFor="email" className="form-label"><b>Email Address </b></label>
+                        <label htmlFor="email" className="form-label"><b>Email Address</b></label>
                         <input
                             type="email"
                             className="form-control"
