@@ -25,7 +25,6 @@ const LandingPage = () => {
                         <p className="text-secondary mb-4">
                         It's designed to bring people together, no matter the task, and help you achieve more, faster.
 
-
                         </p>
                         <p className="text-secondary mb-4">
                             From real-time document editing to secure file storage and constant updates, our platform provides 

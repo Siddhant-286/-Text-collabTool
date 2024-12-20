@@ -1,14 +1,33 @@
+// Register.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        // Registration logic will be added here later
+        setError('');
+        setSuccessMessage('');
+
+        // Simulating an API request
+        try {
+            const user = { name, email, password };
+            localStorage.setItem('user', JSON.stringify(user));
+
+            setSuccessMessage('Registration successful! Redirecting to login...');
+            setName('');
+            setEmail('');
+            setPassword('');
+                navigate('/login');
+        } catch (err) {
+            setError('Something went wrong. Please try again.');
+        }
     };
 
     return (
@@ -52,7 +71,8 @@ const Register = () => {
                     <button type="submit" className="btn btn-primary w-100">Register</button>
                 </form>
                 {error && <p className="text-danger mt-3 text-center">{error}</p>}
-                <p className="text-center mt-3">Already have an account? <a href="/Login">Login</a></p>
+                {successMessage && <p className="text-success mt-3 text-center">{successMessage}</p>}
+                <p className="text-center mt-3">Already have an account? <a href="/login">Login</a></p>
             </div>
         </div>
     );
