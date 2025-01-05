@@ -1,44 +1,57 @@
-
-// Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import '../styles/Login.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/Login.css';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
-        // Simulating an API request
         try {
-            // When backend is integrated, replace this with an API call to validate login.
-            // Example: const response = await api.post('/login', { email, password });
+            const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+            // Check for success flag
+            console.log("response for the server", response.data);
+            if (response.data.success) {
+                   localStorage.setItem('token', response.data.token);
+                    localStorage.setItem('user', JSON.stringify({
+                   username: response.data.username, // Ensure you use response.data.name
+                    email: response.data.email,
+                    token: response.data.token // Store the token
+                }));
 
-            // Retrieve user data from localStorage temporarily (for now)
-            const storedUser = localStorage.getItem('user');
-            const user = storedUser ? JSON.parse(storedUser) : null;
-
-            // Validate email and password
-            if (user && user.email === email && user.password === password) {
+                const storedUser = localStorage.getItem('user');
+               // console.log("The stored user:", storedUser);
                 navigate('/dashboard');
-            } else {
-                setError('Invalid email or password.');
+            }else {
+                setError('Login failed. Please check your credentials and try again.');
             }
         } catch (err) {
-            setError('Something went wrong. Please try again.');
+            //setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+            if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message); 
+            } else {
+                setError('An unexpected error occurred. Please try again later.');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="container d-flex justify-content-center align-items-center min-vh-100">
             <div className="card p-4 shadow-lg" style={{ maxWidth: '400px', width: '100%' }}>
-                <h2 className="text-center text-primary mb-4"><b>Login to CollabTool</b></h2>
+                <h2 className="text-center mb-4"><b>Login</b></h2>
                 <form onSubmit={handleLogin}>
                     <div className="mb-3">
                         <label htmlFor="email" className="form-label"><b>Email Address</b></label>
@@ -64,19 +77,12 @@ const Login = () => {
                             required
                         />
                     </div>
-                    {error && (
-                        <div className="alert alert-danger text-center mt-3">
-                            {error}
-                        </div>
-                    )}
-                    <button type="submit" className="btn btn-primary w-100 py-2">
-                        Login
+                    {error && <div className="alert alert-danger">{error}</div>}
+                    <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                        {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
-                <div className="text-center mt-3">
-                    <p className="mb-0">Don't have an account? <a href="/register" className="text-decoration-none text-primary">Register</a></p>
-                    <p><a href="/forgot-password" className="text-decoration-none">Forgot Password?</a></p>
-                </div>
+                <p>Don't have an account? <Link to="/register">Register</Link></p>
             </div>
         </div>
     );
