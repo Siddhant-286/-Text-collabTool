@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const { Server } = require('socket.io'); // Import Socket.IO
 
 // Importing database configuration
 const connectDB = require('./config/db');
@@ -53,6 +54,35 @@ app.use('/api/documents', documentRoutes);
 app.use((err, req, res, next) => {
     console.error('Error:', err.message || err);
     res.status(err.status || 500).json({ message: err.message || 'Internal server error' });
+});
+
+// Socket.IO setup for real-time collaboration
+const io = new Server(server, {
+    cors: {
+        origin: allowedOrigins,
+        methods: ['GET', 'POST']
+    }
+});
+
+// Real-time collaboration logic
+io.on('connection', (socket) => {
+    console.log('New WebSocket connection');
+
+    // Handle user joining a document
+    socket.on('joinDocument', (documentId) => {
+        socket.join(documentId);
+        console.log(`User joined document ${documentId}`);
+    });
+
+    // Handle document updates
+    socket.on('documentUpdate', ({ documentId, title, content }) => {
+        socket.to(documentId).emit('receiveUpdate', { title, content });
+    });
+
+    // Placeholder for additional features (e.g., chat)
+    socket.on('sendMessage', ({ documentId, message }) => {
+        socket.to(documentId).emit('receiveMessage', message);
+    });
 });
 
 // Server port configuration
